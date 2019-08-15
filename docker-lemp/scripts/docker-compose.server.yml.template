@@ -1,0 +1,157 @@
+
+  nginx${count}:
+    container_name: nginx${count}
+    build:
+      context: ${MNT_DIR}/nginx${SCALE_ID}
+      dockerfile: ${MNT_DIR}/nginx${SCALE_ID}/Dockerfile
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    ports:
+      - "8080:80"
+    volumes:
+      - ${MNT_DIR}/nginx${SCALE_ID}/webpage/:/srv/www/api/
+      - ${MNT_DIR}/nginx${SCALE_ID}/nginx.conf:/etc/nginx/nginx.conf
+      - ${MNT_DIR}/nginx${SCALE_ID}/nginx-log/:/var/log/nginx/
+    networks:
+      - shared${DEV_ID}
+    depends_on:
+      - nginx${count}-php1
+      - nginx${count}-php2
+      - nginx${count}-php3
+      - nginx${count}-php4
+      - nginx${count}-php5
+    command: ["nginx", "-g", "daemon off;"]
+    oom_kill_disable: true
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      
+  nginx${count}-php1:
+    container_name: nginx${count}-php1
+    build:
+      context: ${MNT_DIR}/nginx${SCALE_ID}-php
+      dockerfile: ${MNT_DIR}/nginx${SCALE_ID}-php/Dockerfile
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    volumes:
+      - ${MNT_DIR}/nginx${SCALE_ID}/webpage/:/srv/www/api/
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php-log1/:/var/log/php-fpm/
+    environment:
+      - MYSQL_USER=username${SCALE_ID}
+      - MYSQL_PASSWORD=userpassword${SCALE_ID}
+      - MYSQL_DATABASE=tpcc_bench${SCALE_ID}
+    networks:
+      - shared${DEV_ID}
+    links:
+      - database${DEV_ID}
+    oom_kill_disable: true
+    healthcheck:
+      test: pidof php-fpm
+      timeout: 45s
+      interval: 10s
+      retries: 10
+
+  nginx${count}-php2:
+    container_name: nginx${count}-php2
+    build:
+      context: ${MNT_DIR}/nginx${SCALE_ID}-php
+      dockerfile: ${MNT_DIR}/nginx${SCALE_ID}-php/Dockerfile
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    volumes:
+      - ${MNT_DIR}/nginx${SCALE_ID}/webpage/:/srv/www/api/
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php-log2/:/var/log/php-fpm/
+    environment:
+      - MYSQL_USER=username${SCALE_ID}
+      - MYSQL_PASSWORD=userpassword${SCALE_ID}
+      - MYSQL_DATABASE=tpcc_bench${SCALE_ID}
+    networks:
+      - shared${DEV_ID}
+    links:
+      - database${DEV_ID}
+    oom_kill_disable: true
+    healthcheck:
+      test: pidof php-fpm
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    
+  nginx${count}-php3:
+    container_name: nginx${count}-php3
+    build:
+      context: ${MNT_DIR}/nginx${SCALE_ID}-php
+      dockerfile: ${MNT_DIR}/nginx${SCALE_ID}-php/Dockerfile
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    volumes:
+      - ${MNT_DIR}/nginx${SCALE_ID}/webpage/:/srv/www/api/
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php-log3/:/var/log/php-fpm/
+    environment:
+      - MYSQL_USER=username${SCALE_ID}
+      - MYSQL_PASSWORD=userpassword${SCALE_ID}
+      - MYSQL_DATABASE=tpcc_bench${SCALE_ID}
+    networks:
+      - shared${DEV_ID}
+    links:
+      - database${DEV_ID}
+    oom_kill_disable: true
+    healthcheck:
+      test: pidof php-fpm
+      timeout: 45s
+      interval: 10s
+      retries: 10
+
+  nginx${count}-php4:
+    container_name: nginx${count}-php4
+    build:
+      context: ${MNT_DIR}/nginx${SCALE_ID}-php
+      dockerfile: ${MNT_DIR}/nginx${SCALE_ID}-php/Dockerfile
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    volumes:
+      - ${MNT_DIR}/nginx${SCALE_ID}/webpage/:/srv/www/api/
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php-log4/:/var/log/php-fpm/
+    environment:
+      - MYSQL_USER=username${SCALE_ID}
+      - MYSQL_PASSWORD=userpassword${SCALE_ID}
+      - MYSQL_DATABASE=tpcc_bench${SCALE_ID}
+    networks:
+      - shared${DEV_ID}
+    links:
+      - database${DEV_ID}
+    oom_kill_disable: true
+    healthcheck:
+      test: pidof php-fpm
+      timeout: 45s
+      interval: 10s
+      retries: 10
+  
+  nginx${count}-php5:
+    container_name: nginx${count}-php5
+    build:
+      context: ${MNT_DIR}/nginx${SCALE_ID}-php
+      dockerfile: ${MNT_DIR}/nginx${SCALE_ID}-php/Dockerfile
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    volumes:
+      - ${MNT_DIR}/nginx${SCALE_ID}/webpage/:/srv/www/api/
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ${MNT_DIR}/nginx${SCALE_ID}-php/php-log5/:/var/log/php-fpm/
+    environment:
+      - MYSQL_USER=username${SCALE_ID}
+      - MYSQL_PASSWORD=userpassword${SCALE_ID}
+      - MYSQL_DATABASE=tpcc_bench${SCALE_ID}
+    networks:
+      - shared${DEV_ID}
+    links:
+      - database${DEV_ID}
+    oom_kill_disable: true
+    healthcheck:
+      test: pidof php-fpm
+      timeout: 45s
+      interval: 10s
+      retries: 10
+

@@ -1,0 +1,4 @@
+.vscode/
+*.o
+tpcc_load
+tpcc_start

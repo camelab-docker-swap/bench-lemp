@@ -1,0 +1,132 @@
+version: '2.4'
+
+services:
+  database1:
+    container_name: database1
+    build:
+      context: ../docker/database/db-home
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    networks:
+      - shared1
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - DB_PATH_HOST=/mnt/nvme2n1/db-root
+    volumes:
+      - /mnt/nvme2n1/my.cnf:/etc/mysql/my.cnf
+      - /mnt/nvme2n1/db-root:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    mem_limit: 100MB
+    memswap_limit: -1
+    mem_swappiness: 100
+    oom_kill_disable: true
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      interval: 2s
+      retries: 10
+
+  database2:
+    container_name: database2
+    build:
+      context: ../docker/database/db-home
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    networks:
+      - shared2
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - DB_PATH_HOST=/mnt/nvme2n2/db-root
+    volumes:
+      - /mnt/nvme2n2/my.cnf:/etc/mysql/my.cnf
+      - /mnt/nvme2n2/db-root:/var/lib/mysql
+    ports:
+      - "3308:3306"
+    mem_limit: 150MB
+    memswap_limit: -1
+    mem_swappiness: 100
+    oom_kill_disable: true
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      interval: 2s
+      retries: 10
+
+  database3:
+    container_name: database3
+    build:
+      context: ../docker/database/db-home
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    networks:
+      - shared3
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - DB_PATH_HOST=/mnt/nvme2n3/db-root
+    volumes:
+      - /mnt/nvme2n3/my.cnf:/etc/mysql/my.cnf
+      - /mnt/nvme2n3/db-root:/var/lib/mysql
+    ports:
+      - "3309:3306"
+    mem_limit: 200MB
+    memswap_limit: -1
+    mem_swappiness: 100
+    oom_kill_disable: true
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      interval: 2s
+      retries: 10
+
+  database4:
+    container_name: database4
+    build:
+      context: ../docker/database/db-home
+    labels: # allow docker-autoheal to restart if unhealthy
+      autoheal: "true"
+    networks:
+      - shared4
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - DB_PATH_HOST=/mnt/nvme2n4/db-root
+    volumes:
+      - /mnt/nvme2n4/my.cnf:/etc/mysql/my.cnf
+      - /mnt/nvme2n4/db-root:/var/lib/mysql
+    ports:
+      - "3310:3306"
+    mem_limit: 250MB
+    memswap_limit: -1
+    mem_swappiness: 100
+    oom_kill_disable: true
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      interval: 2s
+      retries: 10
+
+  autoheal:
+    container_name: autoheal
+    image: willfarrell/autoheal
+    restart: always
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  shared1:
+    external:
+      name: shared1
+  shared2:
+    external:
+      name: shared2
+  shared3:
+    external:
+      name: shared3
+  shared4:
+    external:
+      name: shared4
+
+
+  
