@@ -11,7 +11,7 @@ CEND = '\033[0m'
 
 ARR_SWAP_TYPE=["single", "multiple", "private"]
 # ARR_SWAP_TYPE=["private"]
-ARR_SCALE = [1, 4, 8]
+ARR_SCALE = [1]
 ARR_CONNECT = [100]
 NUM_PHP = 5
 TEST_TYPE="bench-lemp"
@@ -38,7 +38,7 @@ def main():
                 for DEV_ID in range(1, 5):
                     arr_tpmc, arr_rt0, arr_rt1, arr_rt2, arr_rt3, arr_rt4 = [], [], [], [], [], []
                     for SCALE_ID in range(1, NUM_SCALE + 1):
-                        FULL_PATH = "/mnt/data/"+ TEST_TYPE +"/swap-" + SWAP_TYPE + \
+                        FULL_PATH = "/mnt/data-seed/"+ TEST_TYPE +"/swap-" + SWAP_TYPE + \
                             "/SCALE" + str(NUM_SCALE) + "-CONNECT" + str(NUM_CONNECT)
                         TPCC_PATH = FULL_PATH + "/NS" + str(DEV_ID) + "-SCALE" + str(SCALE_ID) + ".tpcc"
                         if os.path.isfile(TPCC_PATH):

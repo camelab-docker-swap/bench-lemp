@@ -8,13 +8,13 @@ DB_NAME=tpcc_bench
 NUM_DEV=4
 NUM_PHP=5
 TEST_TYPE=bench-lemp
-ARR_SCALE=(1) # total # of containers = SCALE * 4
+ARR_SCALE=(4) # total # of containers = SCALE * 4
 
 ARR_CONNECT=(100)
 #### Container parameters
 ## Swap types: single multiple private
 # ARR_SWAP_TYPE=(private)
-ARR_SWAP_TYPE=(private single public)
+ARR_SWAP_TYPE=(private single multiple)
 
 DOCKER_ROOT=/var/lib/docker
 MAX_MEM=500
