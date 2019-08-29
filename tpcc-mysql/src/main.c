@@ -29,11 +29,14 @@ char report_file[DB_STRING_MAX] = "";
 FILE *freport_file = NULL;
 char trx_file[DB_STRING_MAX] = "";
 FILE *ftrx_file = NULL;
+char seed_file[DB_STRING_MAX] = "";
+FILE *fseed_file = NULL:
 
 int num_ware;
 int num_conn;
 int lampup_time;
 int measure_time;
+int seed_method;
 
 int num_node; /* number of servers that consists of cluster i.e. RAC (0:normal
                  mode)*/
@@ -138,6 +141,7 @@ int main(int argc, char *argv[]) {
   num_conn = 10;
   lampup_time = 10;
   measure_time = 20;
+  seed_method = 0;
 
   /* number of node (default 0) */
   num_node = 0;
@@ -147,7 +151,7 @@ int main(int argc, char *argv[]) {
 
   /* Parse args */
 
-  while ((c = getopt(argc, argv, "s:h:P:w:c:r:l:i:f:t:m:o:0:1:2:3:4:")) != -1) {
+  while ((c = getopt(argc, argv, "s:h:P:w:c:r:l:d:i:f:t:m:o:0:1:2:3:4:")) != -1) {
     switch (c) {
 	     case 's':
 	    	silent_flag = 1;
@@ -186,6 +190,12 @@ int main(int argc, char *argv[]) {
         if (!init_flag)
           printf("option l with value '%s'\n", optarg);
         measure_time = atoi(optarg);
+        break;
+      case 'd':
+        if (!init_flag)
+          printf("option d with value '%s'\n", optarg);
+        strncpy(seed_file, optarg, DB_STRING_MAX);
+        seed_method = 1;
         break;
       case 'm':
         if (!init_flag)
@@ -337,7 +347,16 @@ int main(int argc, char *argv[]) {
     if (fd == -1) {
       struct timeval tv;
       gettimeofday(&tv, NULL);
-      seed = (tv.tv_sec ^ tv.tv_usec) * tv.tv_sec * tv.tv_usec ^ tv.tv_sec;
+      if (seed_method)
+        fseed_file = fopen(seed_file, "r");
+        fscanf(fseed_file, "%d", seed);
+      else
+        fseed_file = fopen(seed_file, "w+");
+        seed = (tv.tv_sec ^ tv.tv_usec) * tv.tv_sec * tv.tv_usec ^ tv.tv_sec;
+        if (fseed_file != NULL) {
+          fprintf(fseed_file, "%d\n", seed);
+        }
+
     }
     else {
       read(fd, &seed, sizeof(seed));
@@ -464,6 +483,9 @@ int main(int argc, char *argv[]) {
 
   if (ftrx_file != NULL)
     fclose(ftrx_file);
+
+  if (fseed_file != NULL)
+    fclose(fseed_file);
 
   if (!silent_flag) {
   printf("\n<Raw Results>\n");
