@@ -347,7 +347,7 @@ int main(int argc, char *argv[]) {
 
   if (seed_method) {
     fseed_file = fopen(seed_file, "r");
-    fscanf(fseed_file, "%d", seed);
+    fscanf(fseed_file, "%d", &seed);
   } else {
     fseed_file = fopen(seed_file, "w+");
     fd = open("/dev/urandom", O_RDONLY);
