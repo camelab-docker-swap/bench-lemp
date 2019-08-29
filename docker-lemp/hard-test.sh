@@ -14,7 +14,7 @@ ARR_CONNECT=(100)
 #### Container parameters
 ## Swap types: single multiple private
 # ARR_SWAP_TYPE=(private)
-ARR_SWAP_TYPE=(private)
+ARR_SWAP_TYPE=(private single public)
 
 DOCKER_ROOT=/var/lib/docker
 MAX_MEM=500
@@ -384,7 +384,7 @@ docker_web_run() {
 	for DEV_ID in $(seq 1 4); do
 		for SCALE_ID in $(seq 1 ${NUM_SCALE}); do
 			PORT_NUM=$((8079+${count}))
-			${TPCC_PATH}/tpcc_start -h http://127.0.0.1:${PORT_NUM}/index.php -P ${PORT_NUM} -w 1 -c ${NUM_CONNECT} -r 10 -l 180 > ${INTERNAL_DIR}/NS${DEV_ID}-SCALE${SCALE_ID}.tpcc 2>&1 & TPCC_PIDS+=("$!")
+			${TPCC_PATH}/tpcc_start -h http://127.0.0.1:${PORT_NUM}/index.php -P ${PORT_NUM} -e 1 -d ${TPCC_PATH}/seed.txt -w 1 -c ${NUM_CONNECT} -r 10 -l 180 > ${INTERNAL_DIR}/NS${DEV_ID}-SCALE${SCALE_ID}.tpcc 2>&1 & TPCC_PIDS+=("$!")
 			let count="$count + 1"
 		done
 	done
@@ -449,7 +449,7 @@ smem_end() {
 for NUM_CONNECT in "${ARR_CONNECT[@]}"; do
 	for NUM_SCALE in "${ARR_SCALE[@]}"; do
 		for SWAP_TYPE in "${ARR_SWAP_TYPE[@]}"; do
-			RESULT_DIR=/mnt/data/${TEST_TYPE}/swap-${SWAP_TYPE} && mkdir -p ${RESULT_DIR}
+			RESULT_DIR=/mnt/data-seed/${TEST_TYPE}/swap-${SWAP_TYPE} && mkdir -p ${RESULT_DIR}
 			INTERNAL_DIR=${RESULT_DIR}/SCALE${NUM_SCALE}-CONNECT${NUM_CONNECT}
 			
 			#### Docker initialization

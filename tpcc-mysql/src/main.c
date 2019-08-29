@@ -30,7 +30,7 @@ FILE *freport_file = NULL;
 char trx_file[DB_STRING_MAX] = "";
 FILE *ftrx_file = NULL;
 char seed_file[DB_STRING_MAX] = "";
-FILE *fseed_file = NULL:
+FILE *fseed_file = NULL;
 
 int num_ware;
 int num_conn;
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 
   /* Parse args */
 
-  while ((c = getopt(argc, argv, "s:h:P:w:c:r:l:d:i:f:t:m:o:0:1:2:3:4:")) != -1) {
+  while ((c = getopt(argc, argv, "s:h:P:w:c:r:l:e:d:i:f:t:m:o:0:1:2:3:4:")) != -1) {
     switch (c) {
 	     case 's':
 	    	silent_flag = 1;
@@ -191,11 +191,15 @@ int main(int argc, char *argv[]) {
           printf("option l with value '%s'\n", optarg);
         measure_time = atoi(optarg);
         break;
+      case 'e':
+        if(!init_flag)
+          printf("option e with value '%s'\n", optarg);
+        seed_method = atoi(optarg);
+        break;
       case 'd':
         if (!init_flag)
           printf("option d with value '%s'\n", optarg);
         strncpy(seed_file, optarg, DB_STRING_MAX);
-        seed_method = 1;
         break;
       case 'm':
         if (!init_flag)
@@ -341,31 +345,24 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  fd = open("/dev/urandom", O_RDONLY);
-  if (fd == -1) {
-    fd = open("/dev/random", O_RDONLY);
+  if (seed_method) {
+    fseed_file = fopen(seed_file, "r");
+    fscanf(fseed_file, "%d", seed);
+  } else {
+    fseed_file = fopen(seed_file, "w+");
+    fd = open("/dev/urandom", O_RDONLY);
     if (fd == -1) {
       struct timeval tv;
       gettimeofday(&tv, NULL);
-      if (seed_method)
-        fseed_file = fopen(seed_file, "r");
-        fscanf(fseed_file, "%d", seed);
-      else
-        fseed_file = fopen(seed_file, "w+");
-        seed = (tv.tv_sec ^ tv.tv_usec) * tv.tv_sec * tv.tv_usec ^ tv.tv_sec;
-        if (fseed_file != NULL) {
-          fprintf(fseed_file, "%d\n", seed);
-        }
-
+      seed = (tv.tv_sec ^ tv.tv_usec) * tv.tv_sec * tv.tv_usec ^ tv.tv_sec;
     }
     else {
       read(fd, &seed, sizeof(seed));
       close(fd);
     }
-  }
-  else {
-    read(fd, &seed, sizeof(seed));
-    close(fd);
+    if (fseed_file != NULL) {
+      fprintf(fseed_file, "%d\n", seed);
+    }
   }
   SetSeed(seed);
 
