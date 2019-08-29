@@ -12,8 +12,8 @@ regexDB = re.compile('#\sQuery_time\:\s(\d+(\.\d+)?)')
 
 ARR_SWAP_TYPE=["single", "multiple", "private"]
 # ARR_SWAP_TYPE=["private"]
-ARR_SCALE = [1]
-ARR_CONNECT = [1]
+ARR_SCALE = [4]
+ARR_CONNECT = [100]
 NUM_PHP = 5
 TEST_TYPE="bench-lemp"
 
@@ -79,7 +79,7 @@ def main():
                     sum_php_dev, sum_nginx_dev, sum_mysql_dev = 0, 0, 0
                     for SCALE_ID in range(1, NUM_SCALE + 1):
                         arr_php, arr_nginx, arr_mysql = [], [], []
-                        FULL_PATH = "/mnt/data/"+ TEST_TYPE +"/swap-" + SWAP_TYPE + \
+                        FULL_PATH = "/mnt/data-swap/"+ TEST_TYPE +"/swap-" + SWAP_TYPE + \
                             "/SCALE" + str(NUM_SCALE) + "-CONNECT" + str(NUM_CONNECT)
 
                         MYSQL_PATH = FULL_PATH + "/NS" + str(DEV_ID) + "-mysql" + str(SCALE_ID) + ".log"

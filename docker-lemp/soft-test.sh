@@ -3,18 +3,19 @@
 #### tpcc_bench variables
 TPCC_PATH=/home/mkwon/bench-lemp/tpcc-mysql
 DB_NAME=tpcc_bench
+NUM_WAREHOUSE=1
 
 #### Parameters
 NUM_DEV=4
 NUM_PHP=5
 TEST_TYPE=bench-lemp
-ARR_SCALE=(4) # total # of containers = SCALE * 4
+ARR_SCALE=(1) # total # of containers = SCALE * 4
 
-ARR_CONNECT=(8)
+ARR_CONNECT=(150)
 #### Container parameters
 ## Swap types: single multiple private
 # ARR_SWAP_TYPE=(private)
-ARR_SWAP_TYPE=(private single multiple)
+ARR_SWAP_TYPE=(multiple private)
 
 DOCKER_ROOT=/var/lib/docker
 MAX_MEM=500
@@ -47,40 +48,11 @@ pid_kills() {
 	done
 }
 
-nvme_format() {
-    echo "$(tput setaf 4 bold)$(tput setab 7)Format nvme block devices$(tput sgr 0)"
-    for DEV_ID in $(seq 1 ${NUM_DEV}); do
-        nvme format /dev/nvme2n${DEV_ID} -n ${DEV_ID} --ses=0
-    done
-    sleep 1
-
-    FLAG=true
-    while $FLAG; do
-        NUSE="$(nvme id-ns /dev/nvme2n1 -n 1 | grep nuse | awk '{print $3}')"
-        if [[ $NUSE -eq "0" ]]; then
-            FLAG=false
-            echo "nvme format done"
-        fi
-    done
-    sleep 1
-}
-
-nvme_flush() {
-    echo "$(tput setaf 4 bold)$(tput setab 7)Flush nvme block devices$(tput sgr 0)"
-    for DEV_ID in $(seq 1 ${NUM_DEV}); do
-        nvme flush /dev/nvme2n${DEV_ID}
-    done
-}
-
 docker_remove() {
     echo "$(tput setaf 4 bold)$(tput setab 7)Start removing existing docker$(tput sgr 0)"
 	rm -rf $INTERNAL_DIR && mkdir -p $INTERNAL_DIR
     docker ps -aq | xargs --no-run-if-empty docker stop \
-    && docker ps -aq | xargs --no-run-if-empty docker rm \
-	&& docker system prune --all -f \
-    && systemctl stop docker
-
-	rm -rf ${DOCKER_ROOT}
+    && docker ps -aq | xargs --no-run-if-empty docker rm
 
 	for DEV_ID in $(seq 1 4); do
 		if [ -e /mnt/nvme2n${DEV_ID}/swapfile ]; then
@@ -89,13 +61,8 @@ docker_remove() {
 	done
 
     for DEV_ID in $(seq 1 4); do
-        if mountpoint -q /mnt/nvme2n${DEV_ID}; then
-            umount /mnt/nvme2n${DEV_ID}
-        fi
-        rm -rf /mnt/nvme2n${DEV_ID} \
-        && mkdir -p /mnt/nvme2n${DEV_ID} \
-        && wipefs --all --force /dev/nvme2n${DEV_ID}
-    done
+        rm -rf /mnt/nvme2n${DEV_ID}/*
+    done	
 
 	targets=($(brctl show | grep br- | awk '{print $1}'))
 	for target in ${targets[@]}; do
@@ -106,10 +73,6 @@ docker_remove() {
 
 docker_init() {
     echo "$(tput setaf 4 bold)$(tput setab 7)Initializing docker engine$(tput sgr 0)"
-    for DEV_ID in $(seq 1 ${NUM_DEV}); do
-        mkfs.xfs /dev/nvme2n${DEV_ID} \
-        && mount /dev/nvme2n${DEV_ID} /mnt/nvme2n${DEV_ID}
-    done
 
 	count=1
 	for DEV_ID in $(seq 1 4); do
@@ -323,7 +286,7 @@ docker_web_init() {
 			DB_NAME=tpcc_bench${SCALE_ID}
 			USER_NAME=username${SCALE_ID}
 			USER_PASSWD=userpassword${SCALE_ID}
-			${TPCC_PATH}/tpcc_load -h $CONT_IP -d $DB_NAME -u ${USER_NAME} -p ${USER_PASSWD} -w 1 -s 1 & TPCC_PIDS+=("$!")
+			${TPCC_PATH}/tpcc_load -h $CONT_IP -d $DB_NAME -u ${USER_NAME} -p ${USER_PASSWD} -w ${NUM_WAREHOUSE} -s 1 & TPCC_PIDS+=("$!")
 		done
 	done
 	pid_waits TPCC_PIDS[@]
@@ -374,7 +337,7 @@ docker_web_run() {
 	for DEV_ID in $(seq 1 4); do
 		for SCALE_ID in $(seq 1 ${NUM_SCALE}); do
 			PORT_NUM=$((8079+${count}))
-			${TPCC_PATH}/tpcc_start -h http://127.0.0.1:${PORT_NUM}/index.php -P ${PORT_NUM} -w 1 -c ${NUM_CONNECT} -r 10 -l 180 > ${INTERNAL_DIR}/NS${DEV_ID}-SCALE${SCALE_ID}.tpcc 2>&1 & TPCC_PIDS+=("$!")
+			${TPCC_PATH}/tpcc_start -h http://127.0.0.1:${PORT_NUM}/index.php -P ${PORT_NUM} -w ${NUM_WAREHOUSE} -c ${NUM_CONNECT} -r 10 -l 180 > ${INTERNAL_DIR}/NS${DEV_ID}-SCALE${SCALE_ID}.tpcc 2>&1 & TPCC_PIDS+=("$!")
 			let count="$count + 1"
 		done
 	done
@@ -439,13 +402,11 @@ smem_end() {
 for NUM_CONNECT in "${ARR_CONNECT[@]}"; do
 	for NUM_SCALE in "${ARR_SCALE[@]}"; do
 		for SWAP_TYPE in "${ARR_SWAP_TYPE[@]}"; do
-			RESULT_DIR=/mnt/data-swap/${TEST_TYPE}/swap-${SWAP_TYPE} && mkdir -p ${RESULT_DIR}
+			RESULT_DIR=/mnt/data/${TEST_TYPE}/swap-${SWAP_TYPE} && mkdir -p ${RESULT_DIR}
 			INTERNAL_DIR=${RESULT_DIR}/SCALE${NUM_SCALE}-CONNECT${NUM_CONNECT}
 			
 			#### Docker initialization
 			docker_remove
-			nvme_flush
-			nvme_format
 
 			docker_init
 			swapfile_init
@@ -454,10 +415,8 @@ for NUM_CONNECT in "${ARR_CONNECT[@]}"; do
 			docker_web_gen
 			docker_web_init
 			anal_start
-			# # # smem_start
 			docker_web_run
 			anal_end
-			# # # smem_end
 		done
 	done
 done

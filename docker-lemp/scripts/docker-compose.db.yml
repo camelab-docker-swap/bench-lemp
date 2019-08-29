@@ -20,6 +20,7 @@ services:
     mem_limit: 100MB
     memswap_limit: -1
     mem_swappiness: 100
+    mem_swapfile: /mnt/nvme2n1/swapfile
     oom_kill_disable: true
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -46,6 +47,7 @@ services:
     mem_limit: 150MB
     memswap_limit: -1
     mem_swappiness: 100
+    mem_swapfile: /mnt/nvme2n2/swapfile
     oom_kill_disable: true
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -72,6 +74,7 @@ services:
     mem_limit: 200MB
     memswap_limit: -1
     mem_swappiness: 100
+    mem_swapfile: /mnt/nvme2n3/swapfile
     oom_kill_disable: true
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -98,6 +101,7 @@ services:
     mem_limit: 250MB
     memswap_limit: -1
     mem_swappiness: 100
+    mem_swapfile: /mnt/nvme2n4/swapfile
     oom_kill_disable: true
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]

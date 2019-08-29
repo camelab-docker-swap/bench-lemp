@@ -11,8 +11,8 @@ CEND = '\033[0m'
 
 ARR_SWAP_TYPE=["single", "multiple", "private"]
 # ARR_SWAP_TYPE=["private"]
-ARR_SCALE = [1]
-ARR_CONNECT = [1]
+ARR_SCALE = [1, 4, 8]
+ARR_CONNECT = [100]
 NUM_PHP = 5
 TEST_TYPE="bench-lemp"
 
@@ -30,8 +30,8 @@ def main():
         for NUM_SCALE in ARR_SCALE:
             ### tpmC: transaction per minute 
             ### That is, bigger is better
-            print(CTITLE + "First line is TpmC; bigger is better" + CEND)
-            print(CTITLE + "Other lines are response time; lower is better" + CEND)
+            # print(CTITLE + "First line is TpmC; bigger is better" + CEND)
+            # print(CTITLE + "Other lines are response time; lower is better" + CEND)
             swap_arr_tpmc_dev, swap_arr_rt0_dev, swap_arr_rt1_dev, swap_arr_rt2_dev, swap_arr_rt3_dev, swap_arr_rt4_dev = [], [], [], [], [], []
             for SWAP_TYPE in ARR_SWAP_TYPE:
                 arr_tpmc_dev, arr_rt0_dev, arr_rt1_dev, arr_rt2_dev, arr_rt3_dev, arr_rt4_dev = [], [], [], [], [], []
@@ -78,11 +78,11 @@ def main():
                 swap_arr_rt4_dev.append(arr_rt4_dev)
 
             print_data(NUM_SCALE, NUM_CONNECT, swap_arr_tpmc_dev)
-            print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt0_dev)
-            print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt1_dev)
-            print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt2_dev)
-            print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt3_dev)
-            print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt4_dev)
+            # print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt0_dev)
+            # print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt1_dev)
+            # print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt2_dev)
+            # print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt3_dev)
+            # print_data(NUM_SCALE, NUM_CONNECT, swap_arr_rt4_dev)
 
 if __name__ == "__main__":
     main()

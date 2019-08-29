@@ -17,8 +17,8 @@ regexDB = re.compile('#\sQuery_time\:\s(\d+(\.\d+)?)')
 
 ARR_SWAP_TYPE=["single", "multiple", "private"]
 # ARR_SWAP_TYPE=["multiple"]
-ARR_SCALE = [1]
-ARR_CONNECT = [1]
+ARR_SCALE = [4]
+ARR_CONNECT = [100]
 NUM_PHP = 5
 TEST_TYPE="bench-lemp"
 
